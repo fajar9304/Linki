@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --color-tokped-primary: #00AA5B;
+  --color-tokped-primary-light: #E5F7EE;
+  --color-tokped-orange: #FF5722;
+  --color-tokped-danger: #EF144A;
+  --color-tokped-danger-light: #FFEAEF;
+  --color-tokped-dark: #212121;
+  --color-tokped-muted: #6D7588;
+  --color-tokped-border: #E5E7E9;
+  --color-tokped-bg: #F0F3F7;
+  --color-tokped-card: #FFFFFF;
+
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --radius-button: 8px;
+  --radius-card: 16px;
+}
+
+body {
+  background-color: var(--color-tokped-bg);
+  color: var(--color-tokped-dark);
+  font-family: var(--font-sans);
+}

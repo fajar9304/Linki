@@ -1,0 +1,79 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String     @id @default(uuid()) @db.Uuid
+  username     String     @unique @db.VarChar(255)
+  email        String     @db.VarChar(255)
+  passwordHash String     @map("password_hash") @db.VarChar(255)
+  themeConfig  Json       @default("{}") @map("theme_config") @db.JsonB
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamp
+
+  products     Product[]
+  categories   Category[]
+  clickLogs    ClickLog[]
+
+  @@map("users")
+}
+
+model Product {
+  id           String            @id @default(uuid()) @db.Uuid
+  userId       String            @map("user_id") @db.Uuid
+  originalUrl  String            @map("original_url") @db.Text
+  affiliateUrl String            @map("affiliate_url") @db.Text
+  title        String            @db.VarChar(255)
+  imageUrl     String            @map("image_url") @db.Text
+  price        Decimal           @db.Decimal(12, 2)
+  isActive     Boolean           @default(true) @map("is_active") @db.Boolean
+  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamp
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categories   ProductCategory[]
+  clickLogs    ClickLog[]
+
+  @@map("products")
+}
+
+model Category {
+  id         String            @id @default(uuid()) @db.Uuid
+  userId     String            @map("user_id") @db.Uuid
+  name       String            @db.VarChar(255)
+  orderIndex Int               @map("order_index") @db.Integer
+
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products   ProductCategory[]
+
+  @@map("categories")
+}
+
+model ProductCategory {
+  productId  String   @map("product_id") @db.Uuid
+  categoryId String   @map("category_id") @db.Uuid
+
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@map("product_categories")
+}
+
+model ClickLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  viewerIpHash String   @map("viewer_ip_hash") @db.VarChar(255)
+  deviceType   String   @map("device_type") @db.VarChar(50)
+  referrer     String   @db.VarChar(255)
+  clickedAt    DateTime @default(now()) @map("clicked_at") @db.Timestamp
+
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("click_logs")
+}

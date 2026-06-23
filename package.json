@@ -1,0 +1,14 @@
+{
+  "name": "linki-monorepo",
+  "private": true,
+  "scripts": {
+    "dev:api": "pnpm --filter api start:dev",
+    "dev:web": "pnpm --filter web dev",
+    "build:api": "pnpm --filter api build",
+    "build:web": "pnpm --filter web build",
+    "db:migrate": "pnpm --filter api prisma migrate dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
