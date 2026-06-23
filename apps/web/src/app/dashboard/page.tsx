@@ -135,10 +135,13 @@ export default function CreatorDashboard() {
   }, [router, apiBaseUrl]);
 
   // Handle Web Scraper
+  const [scrapeNotice, setScrapeNotice] = useState<string | null>(null);
+
   const handleScrape = async () => {
     if (!urlInput || !token) return;
     try {
       setIsScraping(true);
+      setScrapeNotice(null);
       const res = await fetch(`${apiBaseUrl}/products/scrape`, {
         method: "POST",
         headers: {
@@ -153,11 +156,18 @@ export default function CreatorDashboard() {
         if (result.data.title) setTitle(result.data.title);
         if (result.data.imageUrl) setImageUrl(result.data.imageUrl);
         if (result.data.price) setPrice(result.data.price);
+
+        // Show contextual notice
+        if (result.data.imageUrl) {
+          setScrapeNotice("✅ Nama, gambar, dan harga berhasil diambil otomatis!");
+        } else if (result.data.title) {
+          setScrapeNotice("✅ Nama produk berhasil diambil! Untuk gambar: klik kanan gambar produk di Shopee → \"Salin alamat gambar\" → tempel di kolom Tautan Gambar.");
+        }
       } else {
-        alert("Gagal mengambil info produk otomatis. Silakan isi manual di bawah.");
+        setScrapeNotice("⚠️ Gagal mengambil info produk. Silakan isi nama dan gambar secara manual.");
       }
     } catch (e) {
-      alert("Error menghubungi scraper backend.");
+      setScrapeNotice("❌ Error menghubungi server. Periksa koneksi Anda.");
     } finally {
       setIsScraping(false);
     }
@@ -556,6 +566,15 @@ export default function CreatorDashboard() {
                           {isScraping ? "Mengambil..." : "Ambil Data"}
                         </button>
                       </div>
+                      {scrapeNotice && (
+                        <div className={`mt-2 p-2.5 rounded-lg text-[11px] leading-relaxed ${
+                          scrapeNotice.startsWith("✅") ? "bg-green-50 text-green-700 border border-green-200" :
+                          scrapeNotice.startsWith("⚠️") ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                          "bg-red-50 text-red-700 border border-red-200"
+                        }`}>
+                          {scrapeNotice}
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-3">
