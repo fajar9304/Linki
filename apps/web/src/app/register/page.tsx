@@ -9,14 +9,20 @@ export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !confirmPassword) {
       setError("Semua kolom harus diisi");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Konfirmasi password tidak cocok");
       return;
     }
 
@@ -119,6 +125,19 @@ export default function RegisterPage() {
               placeholder="Masukkan password minimal 6 karakter"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-xl border border-tokped-border px-4 py-3 text-sm outline-none transition-all focus:border-tokped-primary focus:ring-1 focus:ring-tokped-primary"
+              disabled={isLoading}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-tokped-dark mb-1.5">Konfirmasi Password</label>
+            <input
+              type="password"
+              placeholder="Ulangi password Anda"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full rounded-xl border border-tokped-border px-4 py-3 text-sm outline-none transition-all focus:border-tokped-primary focus:ring-1 focus:ring-tokped-primary"
               disabled={isLoading}
               required
