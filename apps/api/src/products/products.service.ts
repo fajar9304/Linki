@@ -1,23 +1,66 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 
+import { IsString, IsNotEmpty, IsUrl, IsNumber, IsOptional, IsBoolean, IsArray } from 'class-validator';
+
 export class CreateProductDto {
+  @IsString()
+  @IsNotEmpty()
   originalUrl!: string;
+
+  @IsString()
+  @IsNotEmpty()
   affiliateUrl!: string;
+
+  @IsString()
+  @IsNotEmpty()
   title!: string;
+
+  @IsString()
+  @IsNotEmpty()
   imageUrl!: string;
+
+  @IsNumber()
   price!: number;
+
+  @IsBoolean()
+  @IsOptional()
   isActive?: boolean;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
   categoryIds?: string[];
 }
 
 export class UpdateProductDto {
+  @IsString()
+  @IsOptional()
   originalUrl?: string;
+
+  @IsString()
+  @IsOptional()
   affiliateUrl?: string;
+
+  @IsString()
+  @IsOptional()
   title?: string;
+
+  @IsString()
+  @IsOptional()
   imageUrl?: string;
+
+  @IsNumber()
+  @IsOptional()
   price?: number;
+
+  @IsBoolean()
+  @IsOptional()
   isActive?: boolean;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
   categoryIds?: string[];
 }
 
