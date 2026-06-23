@@ -93,7 +93,21 @@ export default function CreatorPublicPage() {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/creator/${username}`);
         if (response.ok) {
           const resData = await response.json();
-          if (resData.creator) setCreator(resData.creator);
+          if (resData.creator) {
+            const theme = resData.creator.themeConfig || {};
+            setCreator({
+              username: resData.creator.username,
+              displayName: theme.displayName || resData.creator.username,
+              avatarUrl: theme.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256&h=256",
+              bio: theme.bio || "Selamat datang di halaman bio link saya!",
+              themeConfig: {
+                backgroundColor: theme.backgroundColor || "#F0F3F7",
+                cardColor: theme.cardColor || "#FFFFFF",
+                primaryColor: theme.primaryColor || "#00AA5B",
+                primaryLightColor: theme.primaryLightColor || "#E5F7EE",
+              }
+            });
+          }
           if (resData.categories) setCategories([{ id: "all", name: "Semua Kategori" }, ...resData.categories]);
           if (resData.products) setProducts(resData.products);
         }

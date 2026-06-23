@@ -18,6 +18,7 @@ model User {
   products     Product[]
   categories   Category[]
   clickLogs    ClickLog[]
+  viewLogs     ViewLog[]
 
   @@map("users")
 }
@@ -76,4 +77,14 @@ model ClickLog {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("click_logs")
+}
+
+model ViewLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  viewedAt  DateTime @default(now()) @map("viewed_at") @db.Timestamp
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("view_logs")
 }

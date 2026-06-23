@@ -1,30 +1,31 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  private readonly secretToken = process.env.API_SECRET_TOKEN || 'linki-secret-token';
+  private readonly jwtSecret = process.env.JWT_SECRET || 'linki-default-jwt-secret-key-12345';
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid Authorization header');
+      throw new UnauthorizedException('Format header otorisasi tidak valid');
     }
 
     const token = authHeader.split(' ')[1];
-    if (token !== this.secretToken) {
-      throw new UnauthorizedException('Invalid secret token');
+    try {
+      const decoded = jwt.verify(token, this.jwtSecret) as { userId: string; username: string };
+      
+      (request as any).user = {
+        id: decoded.userId,
+        username: decoded.username,
+      };
+      
+      return true;
+    } catch (error) {
+      throw new UnauthorizedException('Token kedaluwarsa atau tidak valid');
     }
-
-    // Attach a mock user to the request for CRUD operations
-    // In production, this would be retrieved from JWT payload or DB session
-    (request as any).user = {
-      id: process.env.MOCK_USER_ID || '00000000-0000-0000-0000-000000000000',
-      username: 'default_creator',
-    };
-
-    return true;
   }
 }

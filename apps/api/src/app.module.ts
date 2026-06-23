@@ -8,10 +8,29 @@ import { CategoriesService } from './categories/categories.service';
 import { ProductsController } from './products/products.controller';
 import { ProductsService } from './products/products.service';
 import { ScraperService } from './products/scraper.service';
+import { AuthController } from './auth/auth.controller';
+import { AuthService } from './auth/auth.service';
+import { CreatorController } from './creator/creator.controller';
+import { AnalyticsController } from './analytics/analytics.controller';
 
 @Module({
   imports: [],
-  controllers: [AppController, RedirectController, CategoriesController, ProductsController],
-  providers: [AppService, PrismaService, CategoriesService, ProductsService, ScraperService],
+  controllers: [
+    AppController,
+    RedirectController,
+    CategoriesController,
+    ProductsController,
+    AuthController,
+    CreatorController,
+    AnalyticsController,
+  ],
+  providers: [
+    AppService,
+    PrismaService,
+    CategoriesService,
+    ProductsService,
+    ScraperService,
+    AuthService,
+  ],
 })
 export class AppModule {}
