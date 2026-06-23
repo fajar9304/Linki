@@ -71,7 +71,7 @@ export class RedirectController {
         deviceType,
         referrer: referrerSource,
       },
-    }).catch(err => {
+    }).catch((err: any) => {
       console.error('Failed to log click:', err);
     });
 

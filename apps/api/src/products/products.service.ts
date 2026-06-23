@@ -93,7 +93,7 @@ export class ProductsService {
     }
 
     // Wrap update and relation sync in transaction if categories are updated
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: any) => {
       // If categoryIds is provided, clear old categories and insert new ones
       if (data.categoryIds) {
         await tx.productCategory.deleteMany({
