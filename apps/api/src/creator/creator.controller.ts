@@ -63,6 +63,7 @@ export class CreatorController {
       price: Number(p.price),
       isActive: p.isActive,
       categories: p.categories.map((c) => c.categoryId),
+      createdAt: p.createdAt,
     }));
 
     return {

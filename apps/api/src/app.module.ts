@@ -12,6 +12,7 @@ import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { CreatorController } from './creator/creator.controller';
 import { AnalyticsController } from './analytics/analytics.controller';
+import { ProfileController } from './creator/profile.controller';
 
 @Module({
   imports: [],
@@ -23,6 +24,7 @@ import { AnalyticsController } from './analytics/analytics.controller';
     AuthController,
     CreatorController,
     AnalyticsController,
+    ProfileController,
   ],
   providers: [
     AppService,

@@ -34,7 +34,8 @@ const MOCK_PRODUCTS = [
     discount: "13% Off",
     isActive: true,
     affiliateUrl: "https://shopee.co.id/product/123/456",
-    categories: ["skincare", "promo"]
+    categories: ["skincare", "promo"],
+    createdAt: "2026-06-23T10:00:00.000Z"
   },
   {
     id: "prod-2",
@@ -45,7 +46,8 @@ const MOCK_PRODUCTS = [
     discount: "30% Off",
     isActive: true,
     affiliateUrl: "https://tokopedia.com/product/789/101",
-    categories: ["ootd"]
+    categories: ["ootd"],
+    createdAt: "2026-06-23T09:00:00.000Z"
   },
   {
     id: "prod-3",
@@ -56,7 +58,8 @@ const MOCK_PRODUCTS = [
     discount: "9% Off",
     isActive: true,
     affiliateUrl: "https://shopee.co.id/product/555/666",
-    categories: ["skincare"]
+    categories: ["skincare"],
+    createdAt: "2026-06-23T08:00:00.000Z"
   },
   {
     id: "prod-4",
@@ -67,7 +70,8 @@ const MOCK_PRODUCTS = [
     discount: "29% Off",
     isActive: true,
     affiliateUrl: "https://tokopedia.com/product/333/444",
-    categories: ["ootd", "promo"]
+    categories: ["ootd", "promo"],
+    createdAt: "2026-06-23T07:00:00.000Z"
   }
 ];
 
@@ -83,6 +87,8 @@ export default function CreatorPublicPage() {
   const [creator, setCreator] = useState(MOCK_CREATOR);
   const [categories, setCategories] = useState(MOCK_CATEGORIES);
   const [isLoading, setIsLoading] = useState(false);
+  const [sortBy, setSortBy] = useState<"latest" | "oldest" | "price-desc" | "price-asc">("latest");
+  const [isSortOpen, setIsSortOpen] = useState(false);
 
   // Attempt to load from real API if active, otherwise fallback to mock
   useEffect(() => {
@@ -123,14 +129,32 @@ export default function CreatorPublicPage() {
     }
   }, [rawUsername, username]);
 
-  // Filtering Logic
-  const filteredProducts = products.filter((product) => {
-    const matchesCategory =
-      selectedCategory === "all" || product.categories.includes(selectedCategory);
-    const matchesSearch =
-      product.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return product.isActive && matchesCategory && matchesSearch;
-  });
+  // Filtering & Sorting Logic
+  const sortedAndFilteredProducts = [...products]
+    .filter((product) => {
+      const matchesCategory =
+        selectedCategory === "all" || product.categories.includes(selectedCategory);
+      const matchesSearch =
+        product.title.toLowerCase().includes(searchQuery.toLowerCase());
+      return product.isActive && matchesCategory && matchesSearch;
+    })
+    .sort((a, b) => {
+      if (sortBy === "price-asc") {
+        return a.price - b.price;
+      }
+      if (sortBy === "price-desc") {
+        return b.price - a.price;
+      }
+      if (sortBy === "oldest") {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateA - dateB;
+      }
+      // default: latest
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
 
   const handleProductClick = (productId: string) => {
     // Navigate via our backend True Deep Linking Engine to force open native app
@@ -138,8 +162,15 @@ export default function CreatorPublicPage() {
     window.open(apiRedirectUrl, "_blank");
   };
 
+  const themeStyles = {
+    "--color-tokped-bg": creator.themeConfig?.backgroundColor || "#F0F3F7",
+    "--color-tokped-primary": creator.themeConfig?.primaryColor || "#00AA5B",
+    "--color-tokped-primary-light": creator.themeConfig?.primaryLightColor || "#E5F7EE",
+    "--color-tokped-card": creator.themeConfig?.cardColor || "#FFFFFF",
+  } as React.CSSProperties;
+
   return (
-    <div className="bg-tokped-bg min-h-screen pb-16 font-sans text-tokped-dark">
+    <div style={themeStyles} className="bg-tokped-bg min-h-screen pb-16 font-sans text-tokped-dark">
       {/* Creator Profile Header */}
       <div className="bg-tokped-card border-b border-tokped-border px-4 py-8 shadow-sm">
         <div className="mx-auto max-w-md flex flex-col items-center text-center">
@@ -203,8 +234,111 @@ export default function CreatorPublicPage() {
           ))}
         </div>
 
+        {/* Sort and Count Summary Row */}
+        <div className="mb-4 flex items-center justify-between px-1">
+          <span className="text-[11px] font-bold text-tokped-muted">
+            {sortedAndFilteredProducts.length} Rekomendasi Produk
+          </span>
+          <div className="relative">
+            <button
+              onClick={() => setIsSortOpen(!isSortOpen)}
+              className="bg-tokped-card border border-tokped-border rounded-lg text-[10px] font-bold px-2.5 py-1.5 flex items-center gap-1.5 text-tokped-dark hover:border-tokped-primary cursor-pointer shadow-sm transition-all"
+            >
+              {/* Active Icon based on sortBy */}
+              {sortBy === "latest" && (
+                <svg className="h-3.5 w-3.5 text-tokped-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              )}
+              {sortBy === "oldest" && (
+                <svg className="h-3.5 w-3.5 text-tokped-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+              {sortBy === "price-desc" && (
+                <svg className="h-3.5 w-3.5 text-tokped-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                </svg>
+              )}
+              {sortBy === "price-asc" && (
+                <svg className="h-3.5 w-3.5 text-tokped-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h9m5-4l4 4m0 0l-4 4m4-4H13" />
+                </svg>
+              )}
+              <span>
+                {sortBy === "latest" && "Terbaru"}
+                {sortBy === "oldest" && "Terlama"}
+                {sortBy === "price-desc" && "Harga: Termahal"}
+                {sortBy === "price-asc" && "Harga: Termurah"}
+              </span>
+              <svg className="h-3 w-3 text-tokped-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {isSortOpen && (
+              <>
+                {/* Backdrop overlay to close when clicking outside */}
+                <div className="fixed inset-0 z-10" onClick={() => setIsSortOpen(false)}></div>
+                
+                {/* Dropdown Menu Box */}
+                <div className="absolute right-0 mt-1.5 w-40 bg-white border border-tokped-border rounded-xl shadow-lg py-1.5 z-20 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <button
+                    onClick={() => {
+                      setSortBy("latest");
+                      setIsSortOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-[10px] font-bold flex items-center gap-2 hover:bg-slate-50 transition-colors cursor-pointer ${sortBy === "latest" ? "text-tokped-primary bg-[#E5F7EE]" : "text-tokped-dark"}`}
+                  >
+                    <svg className="h-3.5 w-3.5 flex-shrink-0 text-tokped-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Terbaru</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSortBy("oldest");
+                      setIsSortOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-[10px] font-bold flex items-center gap-2 hover:bg-slate-50 transition-colors cursor-pointer ${sortBy === "oldest" ? "text-tokped-primary bg-[#E5F7EE]" : "text-tokped-dark"}`}
+                  >
+                    <svg className="h-3.5 w-3.5 flex-shrink-0 text-tokped-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Terlama</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSortBy("price-desc");
+                      setIsSortOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-[10px] font-bold flex items-center gap-2 hover:bg-slate-50 transition-colors cursor-pointer ${sortBy === "price-desc" ? "text-tokped-primary bg-[#E5F7EE]" : "text-tokped-dark"}`}
+                  >
+                    <svg className="h-3.5 w-3.5 flex-shrink-0 text-tokped-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                    </svg>
+                    <span>Harga: Termahal</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSortBy("price-asc");
+                      setIsSortOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-[10px] font-bold flex items-center gap-2 hover:bg-slate-50 transition-colors cursor-pointer ${sortBy === "price-asc" ? "text-tokped-primary bg-[#E5F7EE]" : "text-tokped-dark"}`}
+                  >
+                    <svg className="h-3.5 w-3.5 flex-shrink-0 text-tokped-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h9m5-4l4 4m0 0l-4 4m4-4H13" />
+                    </svg>
+                    <span>Harga: Termurah</span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
         {/* Product List Grid */}
-        {filteredProducts.length === 0 ? (
+        {sortedAndFilteredProducts.length === 0 ? (
           <div className="bg-tokped-card border border-tokped-border rounded-2xl py-12 px-6 text-center">
             <svg
               className="mx-auto h-12 w-12 text-tokped-muted mb-3"
@@ -220,7 +354,7 @@ export default function CreatorPublicPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3.5">
-            {filteredProducts.map((product) => (
+            {sortedAndFilteredProducts.map((product) => (
               <div
                 key={product.id}
                 onClick={() => handleProductClick(product.id)}
@@ -265,7 +399,7 @@ export default function CreatorPublicPage() {
                       e.stopPropagation();
                       handleProductClick(product.id);
                     }}
-                    className="w-full cursor-pointer mt-4 bg-tokped-primary text-white text-xs font-bold py-2 rounded-lg hover:bg-[#00944F] active:bg-[#008044] transition-all flex items-center justify-center gap-1"
+                    className="w-full cursor-pointer mt-4 bg-tokped-primary text-white text-xs font-bold py-2 rounded-lg hover:brightness-95 active:brightness-90 transition-all flex items-center justify-center gap-1"
                   >
                     <span>Beli Sekarang</span>
                     <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
