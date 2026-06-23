@@ -90,7 +90,7 @@ export default function CreatorPublicPage() {
       try {
         setIsLoading(true);
         // We will query backend API. If it fails, fallback silently to mock
-        const response = await fetch(`http://localhost:5001/api/creator/${username}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/creator/${username}`);
         if (response.ok) {
           const resData = await response.json();
           if (resData.creator) setCreator(resData.creator);
@@ -120,7 +120,7 @@ export default function CreatorPublicPage() {
 
   const handleProductClick = (productId: string) => {
     // Navigate via our backend True Deep Linking Engine to force open native app
-    const apiRedirectUrl = `http://localhost:5001/r/${username}/${productId}`;
+    const apiRedirectUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/r/${username}/${productId}`;
     window.open(apiRedirectUrl, "_blank");
   };
 

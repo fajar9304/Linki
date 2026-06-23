@@ -78,7 +78,7 @@ export default function CreatorDashboard() {
     if (!urlInput) return;
     try {
       setIsScraping(true);
-      const res = await fetch("http://localhost:5001/products/scrape", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/products/scrape`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
