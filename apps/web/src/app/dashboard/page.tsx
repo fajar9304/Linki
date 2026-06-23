@@ -149,12 +149,12 @@ export default function CreatorDashboard() {
       });
 
       const result = await res.json();
-      if (res.ok && result) {
-        setTitle(result.title || "");
-        setImageUrl(result.imageUrl || "");
-        setPrice(result.price || 0);
+      if (res.ok && result.success && result.data) {
+        if (result.data.title) setTitle(result.data.title);
+        if (result.data.imageUrl) setImageUrl(result.data.imageUrl);
+        if (result.data.price) setPrice(result.data.price);
       } else {
-        alert("Gagal mengambil info produk secara otomatis. Isi manual di bawah.");
+        alert("Gagal mengambil info produk otomatis. Silakan isi manual di bawah.");
       }
     } catch (e) {
       alert("Error menghubungi scraper backend.");
@@ -585,9 +585,20 @@ export default function CreatorDashboard() {
                           type="text"
                           value={imageUrl}
                           onChange={(e) => setImageUrl(e.target.value)}
-                          placeholder="/assets/skincare.png"
+                          placeholder="Otomatis terisi dari link produk, atau tempel URL gambar manual"
                           className="w-full rounded-lg border border-tokped-border px-3 py-2 text-xs outline-none focus:border-tokped-primary"
                         />
+                        {imageUrl && (
+                          <div className="mt-2 flex items-center gap-3 p-2 bg-slate-50 rounded-lg border border-tokped-border">
+                            <img
+                              src={imageUrl}
+                              alt="Preview"
+                              className="w-14 h-14 object-cover rounded-lg border border-tokped-border"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                            />
+                            <span className="text-[10px] text-tokped-success font-semibold">✓ Preview gambar terdeteksi</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
