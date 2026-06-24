@@ -51,7 +51,11 @@ export default function RegisterPage() {
         router.push("/login");
       }, 2000);
     } catch (err: any) {
-      setError(err.message || "Terjadi kesalahan pada server");
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        setError("Gagal terhubung ke API backend. Jika dijalankan di Vercel, pastikan NEXT_PUBLIC_API_URL telah dikonfigurasi di pengaturan Vercel dan server backend Anda aktif.");
+      } else {
+        setError(err.message || "Terjadi kesalahan pada server");
+      }
     } finally {
       setIsLoading(false);
     }
